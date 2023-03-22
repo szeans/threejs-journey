@@ -9,14 +9,14 @@ const scene = new THREE.Scene()
 
 // Object
 const geometry = new THREE.BoxGeometry(1, 1, 1)
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+const material = new THREE.MeshBasicMaterial({ color: 0xffffff })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
 // Sizes
 const sizes = {
-    width: 1280,
-    height: 720
+    width: 800,
+    height: 400
 }
 
 // Camera
@@ -46,7 +46,6 @@ const tick = (() => {
   mesh.rotation.y = elapsedTime
   mesh.position.x = Math.sin(elapsedTime)
   mesh.position.y = Math.cos(elapsedTime)
-  mesh.position.z = Math.tan(elapsedTime)
 
   // render  <-- only need this in tick function when using gsap
   renderer.render(scene, camera)
