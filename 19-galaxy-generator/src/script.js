@@ -23,7 +23,7 @@ const parameters = {
   radius: 5,
   branches: 3,
   spin: 1,
-  randomness: 0.2,
+  randomness: 0.5,
   randomnessPower: 3,
   insideColor: '#ff6030',
   outsideColor: '#1b3984',
@@ -57,9 +57,9 @@ const generateGalaxy = () => {
     const spinAngle = radius * parameters.spin
     const branchAngle = i % parameters.branches / parameters.branches * Math.PI * 2
 
-    const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < .5 ? (1) : (-1))
-    const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < .5 ? (1) : (-1))
-    const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < .5 ? (1) : (-1))
+    const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < .5 ? (1) : (-1)) * radius * parameters.randomness
+    const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < .5 ? (1) : (-1)) * radius * parameters.randomness
+    const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < .5 ? (1) : (-1)) * radius * parameters.randomness
 
     positions[i3 + 0] = randomX + Math.cos(branchAngle + spinAngle) * radius
     positions[i3 + 1] = randomY
@@ -99,7 +99,7 @@ const generateGalaxy = () => {
 }
 
 generateGalaxy()
-gui.add(parameters, 'count').min(100).max(1000000).step(5000).onFinishChange(generateGalaxy)
+gui.add(parameters, 'count').min(100).max(500000).step(1000).onFinishChange(generateGalaxy)
 gui.add(parameters, 'size').min(.01).max(.1).step(.01).onFinishChange(generateGalaxy)
 gui.add(parameters, 'radius').min(.1).max(20).step(.5).onFinishChange(generateGalaxy)
 gui.add(parameters, 'branches').min(2).max(20).step(1).onFinishChange(generateGalaxy)
@@ -162,10 +162,14 @@ const clock = new THREE.Clock()
 const tick = () => {
   const elapsedTime = clock.getElapsedTime()
 
-  points.position.y = Math.sin(elapsedTime) * .1
-  points.rotation.y = elapsedTime * .1
-  points.rotation.x = Math.sin(elapsedTime) * .05
-  points.rotation.z = Math.cos(elapsedTime) * .05
+  points.position.y = Math.sin(elapsedTime) * .05
+  if (parameters.spin < 0) {
+    points.rotation.y = elapsedTime * -0.07
+  } else if (parameters.spin > 0) {
+    points.rotation.y = elapsedTime * 0.07
+  }
+  points.rotation.x = Math.sin(elapsedTime * .8) * .03
+  points.rotation.z = Math.cos(elapsedTime * .8) * .03
 
   // Update controls
   controls.update()
