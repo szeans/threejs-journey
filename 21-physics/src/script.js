@@ -1,13 +1,15 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'lil-gui'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 
 /**
  * Debug
  */
 const gui = new dat.GUI()
-const debugObject = {}
+const debugObject = {
+  gravity: -9.81,
+}
 debugObject.createSphere = () => {
   createSphere(Math.max(.2, Math.random() * .5), { x: (Math.random() - .5) * 3, y: 3, z: (Math.random() - .5) * 3 })
 }
@@ -40,9 +42,11 @@ const canvas = document.querySelector('canvas.webgl')
  * Physiccs
  */
 const world = new CANNON.World()
-world.gravity.set(0, -9.81, 0)
+world.gravity.set(0, debugObject.gravity, 0)
 world.broadphase = new CANNON.SAPBroadphase(world)
 world.allowSleep = true
+
+gui.add(debugObject, "gravity").min(-50).max(50).step(.01).onFinishChange(() => world.gravity.set(0, debugObject.gravity, 0))
 
 // Materials
 const defaultMaterial = new CANNON.Material('concrete')
