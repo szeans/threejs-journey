@@ -1,5 +1,16 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import Stats from 'stats.js'
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+
+/**
+ * Stats
+ */
+
+const stats = new Stats()
+stats.showPanel(0)
+document.body.appendChild(stats.dom)
+
 
 /**
  * Base
@@ -20,23 +31,22 @@ const displacementTexture = textureLoader.load('/textures/displacementMap.png')
  * Sizes
  */
 const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
+  width: window.innerWidth,
+  height: window.innerHeight
 }
 
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
+window.addEventListener('resize', () => {
+  // Update sizes
+  sizes.width = window.innerWidth
+  sizes.height = window.innerHeight
 
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
+  // Update camera
+  camera.aspect = sizes.width / sizes.height
+  camera.updateProjectionMatrix()
 
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
 /**
@@ -52,12 +62,12 @@ const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
 
 /**
- * Renderer
+ * Renderer  using best GPU!
  */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas,
-    powerPreference: 'high-performance',
-    antialias: true
+  canvas: canvas,
+  powerPreference: 'high-performance',
+  antialias: true
 })
 renderer.useLegacyLights = false
 renderer.shadowMap.enabled = true
@@ -68,41 +78,41 @@ renderer.setPixelRatio(window.devicePixelRatio)
 /**
  * Test meshes
  */
-const cube = new THREE.Mesh(
-    new THREE.BoxGeometry(2, 2, 2),
-    new THREE.MeshStandardMaterial()
-)
-cube.castShadow = true
-cube.receiveShadow = true
-cube.position.set(- 5, 0, 0)
-scene.add(cube)
+// const cube = new THREE.Mesh(
+//     new THREE.BoxGeometry(2, 2, 2),
+//     new THREE.MeshStandardMaterial()
+// )
+// cube.castShadow = true
+// cube.receiveShadow = true
+// cube.position.set(- 5, 0, 0)
+// scene.add(cube)
 
-const torusKnot = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(1, 0.4, 128, 32),
-    new THREE.MeshStandardMaterial()
-)
-torusKnot.castShadow = true
-torusKnot.receiveShadow = true
-scene.add(torusKnot)
+// const torusKnot = new THREE.Mesh(
+//     new THREE.TorusKnotGeometry(1, 0.4, 128, 32),
+//     new THREE.MeshStandardMaterial()
+// )
+// torusKnot.castShadow = true
+// torusKnot.receiveShadow = true
+// scene.add(torusKnot)
 
-const sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(1, 32, 32),
-    new THREE.MeshStandardMaterial()
-)
-sphere.position.set(5, 0, 0)
-sphere.castShadow = true
-sphere.receiveShadow = true
-scene.add(sphere)
+// const sphere = new THREE.Mesh(
+//     new THREE.SphereGeometry(1, 32, 32),
+//     new THREE.MeshStandardMaterial()
+// )
+// sphere.position.set(5, 0, 0)
+// sphere.castShadow = true
+// sphere.receiveShadow = true
+// scene.add(sphere)
 
-const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
-    new THREE.MeshStandardMaterial()
-)
-floor.position.set(0, - 2, 0)
-floor.rotation.x = - Math.PI * 0.5
-floor.castShadow = true
-floor.receiveShadow = true
-scene.add(floor)
+// const floor = new THREE.Mesh(
+//     new THREE.PlaneGeometry(10, 10),
+//     new THREE.MeshStandardMaterial()
+// )
+// floor.position.set(0, - 2, 0)
+// floor.rotation.x = - Math.PI * 0.5
+// floor.castShadow = true
+// floor.receiveShadow = true
+// scene.add(floor)
 
 /**
  * Lights
@@ -120,21 +130,26 @@ scene.add(directionalLight)
  */
 const clock = new THREE.Clock()
 
-const tick = () =>
-{
-    const elapsedTime = clock.getElapsedTime()
+const tick = () => {
+  const elapsedTime = clock.getElapsedTime()
 
-    // Update test mesh
-    torusKnot.rotation.y = elapsedTime * 0.1
+  // Stats
+  stats.begin()
 
-    // Update controls
-    controls.update()
+  // Update test mesh
+  // torusKnot.rotation.y = elapsedTime * 0.1
 
-    // Render
-    renderer.render(scene, camera)
+  // Update controls
+  controls.update()
 
-    // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
+  // Render
+  renderer.render(scene, camera)
+
+  // Call tick again on the next frame
+  window.requestAnimationFrame(tick)
+
+  // Stats
+  stats.end()
 }
 
 tick()
@@ -143,7 +158,7 @@ tick()
  * Tips
  */
 
-// // Tip 4
+// // Tip 4 Get various information about the render
 // console.log(renderer.info)
 
 // // Tip 6
@@ -159,10 +174,12 @@ tick()
 // directionalLight.shadow.camera.far = 10
 // directionalLight.shadow.mapSize.set(1024, 1024)
 
+// Optimize shadow maps and make them fit the scene
+// use small map size
 // const cameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera)
 // scene.add(cameraHelper)
 
-// // Tip 11
+// // Tip 11 use wisely
 // cube.castShadow = true
 // cube.receiveShadow = false
 
@@ -179,13 +196,51 @@ tick()
 // renderer.shadowMap.autoUpdate = false
 // renderer.shadowMap.needsUpdate = true
 
+// Mipmaps should be power of 2 resolution
+
 // // Tip 18
+// MUTUALIZE GEOMETRIES
+// make one geometry and share  among meshes
+// const geometries = []
 // for(let i = 0; i < 50; i++)
 // {
 //     const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
 
-//     const material = new THREE.MeshNormalMaterial()
-    
+//     geometry.rotateX((Math.random() - 0.5) * Math.PI * 2)
+//     geometry.rotateY((Math.random() - 0.5) * Math.PI * 2)
+
+//     geometry.translate(
+//       (Math.random() - 0.5) * 10,
+//       (Math.random() - 0.5) * 10,
+//       (Math.random() - 0.5) * 10
+//     )
+
+//     geometries.push(geometry)
+// }
+
+// const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries)
+// const material = new THREE.MeshNormalMaterial()
+// const mesh = new THREE.Mesh(mergedGeometry, material)
+
+// scene.add(mesh)
+
+// const material = new THREE.MeshNormalMaterial()
+
+// const mesh = new THREE.Mesh(geometry, material)
+// mesh.position.x = (Math.random() - 0.5) * 10
+// mesh.position.y = (Math.random() - 0.5) * 10
+// mesh.position.z = (Math.random() - 0.5) * 10
+// mesh.rotation.x = (Math.random() - 0.5) * Math.PI * 2
+// mesh.rotation.y = (Math.random() - 0.5) * Math.PI * 2
+
+// scene.add(mesh)
+
+// // Tip 19 MUTUALIZE MATERIALS
+// const material = new THREE.MeshNormalMaterial()
+// for(let i = 0; i < 50; i++)
+// {
+//     const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+
 //     const mesh = new THREE.Mesh(geometry, material)
 //     mesh.position.x = (Math.random() - 0.5) * 10
 //     mesh.position.y = (Math.random() - 0.5) * 10
@@ -196,26 +251,9 @@ tick()
 //     scene.add(mesh)
 // }
 
-// // Tip 19
-// for(let i = 0; i < 50; i++)
-// {
-//     const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
-
-//     const material = new THREE.MeshNormalMaterial()
-    
-//     const mesh = new THREE.Mesh(geometry, material)
-//     mesh.position.x = (Math.random() - 0.5) * 10
-//     mesh.position.y = (Math.random() - 0.5) * 10
-//     mesh.position.z = (Math.random() - 0.5) * 10
-//     mesh.rotation.x = (Math.random() - 0.5) * Math.PI * 2
-//     mesh.rotation.y = (Math.random() - 0.5) * Math.PI * 2
-
-//     scene.add(mesh)
-// }
-
-// // Tip 20
+// // Tip 20 
 // const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
-    
+
 // for(let i = 0; i < 50; i++)
 // {
 //     const material = new THREE.MeshNormalMaterial()
@@ -230,83 +268,86 @@ tick()
 //     scene.add(mesh)
 // }
 
-// // Tip 22
+// // Tip 22 good for particles, lots of random stuff
 // const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
 
 // const material = new THREE.MeshNormalMaterial()
-    
+
+// const mesh = new THREE.InstancedMesh(geometry, material, 50)
+
+// mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+
+// scene.add(mesh)
+
 // for(let i = 0; i < 50; i++)
 // {
-//     const mesh = new THREE.Mesh(geometry, material)
-//     mesh.position.x = (Math.random() - 0.5) * 10
-//     mesh.position.y = (Math.random() - 0.5) * 10
-//     mesh.position.z = (Math.random() - 0.5) * 10
-//     mesh.rotation.x = (Math.random() - 0.5) * Math.PI * 2
-//     mesh.rotation.y = (Math.random() - 0.5) * Math.PI * 2
+//   const position = new THREE.Vector3(
+//     (Math.random() - 0.5) * 10,
+//     (Math.random() - 0.5) * 10,
+//     (Math.random() - 0.5) * 10
+//   )
 
-//     scene.add(mesh)
+//   const quaternion = new THREE.Quaternion()
+//   quaternion.setFromEuler(new THREE.Euler(
+//     (Math.random() - 0.5) * Math.PI * 2,
+//     (Math.random() - 0.5) * Math.PI * 2
+//   ))
+
+//   const matrix = new THREE.Matrix4()
+//   matrix.makeRotationFromQuaternion(quaternion)
+//   matrix.setPosition(position)
+//   mesh.setMatrixAt(i, matrix)
+
 // }
 
 // // Tip 29
 // renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-// // Tip 31, 32, 34 and 35
-// const shaderGeometry = new THREE.PlaneGeometry(10, 10, 256, 256)
+// Tip 31, 32, 34 and 35 DO CALCULATIONS (colors) IN VERTEX SHADER
+const shaderGeometry = new THREE.PlaneGeometry(10, 10, 256, 256)
 
-// const shaderMaterial = new THREE.ShaderMaterial({
-//     uniforms:
-//     {
-//         uDisplacementTexture: { value: displacementTexture },
-//         uDisplacementStrength: { value: 1.5 }
-//     },
-//     vertexShader: `
-//         uniform sampler2D uDisplacementTexture;
-//         uniform float uDisplacementStrength;
+const shaderMaterial = new THREE.ShaderMaterial({
+  precision: 'lowp',
+  uniforms:
+  {
+    uDisplacementTexture: { value: displacementTexture }
+  },
+  defines: { 
+    DISPLACEMENT_STRENGTH: 1.5
+  },
+  vertexShader: `
+        uniform sampler2D uDisplacementTexture;
 
-//         varying vec2 vUv;
+        varying vec2 vUv;
+        varying vec3 vColor;
 
-//         void main()
-//         {
-//             vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+        void main()
+        {
+            vec4 modelPosition = modelMatrix * vec4(position, 1.0);
 
-//             float elevation = texture2D(uDisplacementTexture, uv).r;
-//             if(elevation < 0.5)
-//             {
-//                 elevation = 0.5;
-//             }
+            float elevation = texture2D(uDisplacementTexture, uv).r;
 
-//             modelPosition.y += elevation * uDisplacementStrength;
+            modelPosition.y += clamp(elevation, .5, 1.0) * DISPLACEMENT_STRENGTH;
 
-//             gl_Position = projectionMatrix * viewMatrix * modelPosition;
+            gl_Position = projectionMatrix * viewMatrix * modelPosition;
 
-//             vUv = uv;
-//         }
-//     `,
-//     fragmentShader: `
-//         uniform sampler2D uDisplacementTexture;
+            // COlor
+            float colorElevation = max(elevation, .25);
+            vColor = mix(vec3(1.0, 0.1, 0.1), vec3(0.1, 0.0, 0.5), colorElevation);
 
-//         varying vec2 vUv;
+            vUv = uv;
+        }
+    `,
+  fragmentShader: `
+        varying vec3 vColor;
 
-//         void main()
-//         {
-//             float elevation = texture2D(uDisplacementTexture, vUv).r;
-//             if(elevation < 0.25)
-//             {
-//                 elevation = 0.25;
-//             }
+        void main()
+        {
+            gl_FragColor = vec4(vColor, 1.0);
+        }
+    `
+})
 
-//             vec3 depthColor = vec3(1.0, 0.1, 0.1);
-//             vec3 surfaceColor = vec3(0.1, 0.0, 0.5);
-//             vec3 finalColor = vec3(0.0);
-//             finalColor.r += depthColor.r + (surfaceColor.r - depthColor.r) * elevation;
-//             finalColor.g += depthColor.g + (surfaceColor.g - depthColor.g) * elevation;
-//             finalColor.b += depthColor.b + (surfaceColor.b - depthColor.b) * elevation;
-
-//             gl_FragColor = vec4(finalColor, 1.0);
-//         }
-//     `
-// })
-
-// const shaderMesh = new THREE.Mesh(shaderGeometry, shaderMaterial)
-// shaderMesh.rotation.x = - Math.PI * 0.5
-// scene.add(shaderMesh)
+const shaderMesh = new THREE.Mesh(shaderGeometry, shaderMaterial)
+shaderMesh.rotation.x = - Math.PI * 0.5
+scene.add(shaderMesh)
